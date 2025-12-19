@@ -1,0 +1,77 @@
+---
+# Base path for repository storage
+base_repo_path: /var/local-repos
+
+# RHEL Subscription credentials (required for official repos)
+# Alternatively, use content from Red Hat Satellite or other sources
+rhsm_username: ""
+rhsm_password: ""
+
+# RHEL version configurations
+rhel_versions:
+  "8":
+    enabled: true
+    repos:
+      - rhel-8-for-x86_64-baseos-rpms
+      - rhel-8-for-x86_64-appstream-rpms
+      - rhel-8-for-x86_64-supplementary-rpms
+    packages:
+      - vim
+      - git
+      - wget
+      - curl
+      - net-tools
+      - bind-utils
+      - podman
+      - buildah
+      - skopeo
+      - python3
+      - ansible
+    download_dependencies: true
+    
+  "9":
+    enabled: true
+    repos:
+      - rhel-9-for-x86_64-baseos-rpms
+      - rhel-9-for-x86_64-appstream-rpms
+      - rhel-9-for-x86_64-supplementary-rpms
+    packages:
+      - vim
+      - git
+      - wget
+      - curl
+      - net-tools
+      - bind-utils
+      - podman
+      - buildah
+      - skopeo
+      - python3
+      - ansible-core
+    download_dependencies: true
+    
+  "10":
+    enabled: false  # Enable when RHEL 10 is released
+    repos:
+      - rhel-10-for-x86_64-baseos-rpms
+      - rhel-10-for-x86_64-appstream-rpms
+    packages:
+      - vim
+      - git
+      - wget
+      - curl
+      - podman
+    download_dependencies: true
+
+# Mirror settings
+mirror_settings:
+  download_metadata: true
+  download_source: false
+  download_debuginfo: false
+  newest_only: true
+  
+# Network proxy settings (if required)
+proxy_settings:
+  enabled: false
+  http_proxy: ""
+  https_proxy: ""
+  no_proxy: "localhost,127.0.0.1"
