@@ -1,0 +1,25 @@
+# Local RHEL {{ item }} Repository Configuration
+# Generated: {{ ansible_date_time.iso8601 }}
+# Host: {{ ansible_hostname }}
+
+[local-rhel{{ item }}-packages]
+name=Local RHEL {{ item }} Package Repository
+baseurl=file://{{ base_repo_path }}/rhel{{ item }}/packages
+enabled=1
+gpgcheck=0
+priority=1
+
+{% for repo in rhel_versions[item|string].repos %}
+[local-{{ repo }}]
+name=Local Mirror - {{ repo }}
+baseurl=file://{{ base_repo_path }}/rhel{{ item }}/{{ repo }}
+enabled=1
+gpgcheck=0
+priority=1
+
+{% endfor %}
+
+# To use this repository on a RHEL {{ item }} system:
+# 1. Copy this file to /etc/yum.repos.d/
+# 2. Ensure the repository path is accessible (mount if needed)
+# 3. Run: dnf clean all && dnf repolist

@@ -1,0 +1,296 @@
+# ==============================================================================
+# RHEL Repository Sync - Git Ignore Rules
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Ansible Files
+# ------------------------------------------------------------------------------
+*.retry
+.ansible/
+.ansible_collections/
+*.log
+ansible.log
+sync-output.log
+
+# ------------------------------------------------------------------------------
+# Secrets and Credentials (CRITICAL - Never commit these!)
+# ------------------------------------------------------------------------------
+# Vault password files
+.vault_pass
+.vault_password
+*vault_pass*
+*vault-pass*
+
+# Secrets files
+vars/secrets.yml
+vars/*secret*
+vars/*credential*
+vars/*password*
+*secrets.yml
+
+# RHSM credentials
+rhsm_credentials.yml
+subscription-manager.conf
+
+# SSH keys
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+*.ppk
+
+# ------------------------------------------------------------------------------
+# Repository Data (Large files that shouldn't be in git)
+# ------------------------------------------------------------------------------
+# Repository directories
+/var/local-repos/
+local-repos/
+repos/
+repository/
+
+# RPM packages
+*.rpm
+*.src.rpm
+
+# Repository metadata
+repodata/
+**/repodata/
+
+# YUM/DNF cache
+*.sqlite
+*.xml.gz
+*.xml
+*-primary.*
+*-filelists.*
+*-other.*
+*-updateinfo.*
+
+# ------------------------------------------------------------------------------
+# Logs and Debug Files
+# ------------------------------------------------------------------------------
+*.log
+logs/
+*.log.*
+sync-*.log
+repo-sync-*.log
+build-*.log
+podman-*.log
+container-*.log
+
+# Ansible logs
+ansible-*.log
+playbook-*.log
+
+# ------------------------------------------------------------------------------
+# Container and Build Artifacts
+# ------------------------------------------------------------------------------
+# Container images (if exported)
+*.tar
+*.tar.gz
+*.tgz
+!rhel-repo-sync.tar.gz  # Allow the distribution archive
+
+# ISO images
+*.iso
+isos/
+
+# Build cache
+.buildah/
+.cache/
+
+# ------------------------------------------------------------------------------
+# Podman/Container Files
+# ------------------------------------------------------------------------------
+# Podman storage (if local)
+.local/share/containers/
+storage/
+overlay/
+overlay2/
+
+# Container volumes
+volumes/
+
+# ------------------------------------------------------------------------------
+# Backup Files
+# ------------------------------------------------------------------------------
+*.bak
+*.backup
+*.old
+*.orig
+*~
+*.swp
+*.swo
+.*.sw?
+
+# Repository backups
+repo-backup/
+backup/
+*.backup/
+
+# ------------------------------------------------------------------------------
+# Python Files
+# ------------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+
+# ------------------------------------------------------------------------------
+# OS and Editor Files
+# ------------------------------------------------------------------------------
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ------------------------------------------------------------------------------
+# IDE and Editor Files
+# ------------------------------------------------------------------------------
+# VSCode
+.vscode/
+*.code-workspace
+.history/
+
+# JetBrains (IntelliJ, PyCharm, etc.)
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.idea_modules/
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+Session.vim
+.netrwhist
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# ------------------------------------------------------------------------------
+# Temporary and Cache Files
+# ------------------------------------------------------------------------------
+tmp/
+temp/
+*.tmp
+.tmp/
+cache/
+.cache/
+
+# ------------------------------------------------------------------------------
+# Distribution and Archive Files (except project archive)
+# ------------------------------------------------------------------------------
+*.tar.bz2
+*.tar.xz
+*.zip
+*.rar
+*.7z
+
+# Allow the project distribution archive
+!rhel-repo-sync.tar.gz
+
+# ------------------------------------------------------------------------------
+# Test and Development Files
+# ------------------------------------------------------------------------------
+test-output/
+test-results/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# ------------------------------------------------------------------------------
+# Documentation Build Files
+# ------------------------------------------------------------------------------
+docs/_build/
+site/
+
+# ------------------------------------------------------------------------------
+# Custom Configuration (User-specific, not to be shared)
+# ------------------------------------------------------------------------------
+# Local configuration overrides
+vars/local.yml
+vars/local_*.yml
+local_config.yml
+my_*.yml
+
+# User-specific settings
+.user-settings
+user-config/
+
+# ------------------------------------------------------------------------------
+# Notes
+# ------------------------------------------------------------------------------
+# Keep example configurations
+!vars/*_example.yml
+!vars/repo_config_airgapped_example.yml
+
+# Keep templates
+!templates/*.j2
+
+# Keep documentation
+!*.md
+!README*
+!LICENSE

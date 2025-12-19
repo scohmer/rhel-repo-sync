@@ -1,0 +1,185 @@
+---
+# Example Configuration for Airgapped/Disconnected Environment
+# Copy this to vars/repo_config.yml and customize
+
+# Base path for repository storage
+# Ensure you have sufficient disk space (50-100GB per RHEL version)
+base_repo_path: /var/local-repos
+
+# RHEL Subscription credentials
+# Option 1: Use Red Hat Subscription Manager credentials
+rhsm_username: ""
+rhsm_password: ""
+
+# Option 2: Use Red Hat Satellite/Capsule
+# Configure your Satellite details in the repos below
+
+# RHEL version configurations
+rhel_versions:
+  "8":
+    enabled: true
+    # For RHEL 8
+    repos:
+      - rhel-8-for-x86_64-baseos-rpms
+      - rhel-8-for-x86_64-appstream-rpms
+      - rhel-8-for-x86_64-supplementary-rpms
+      # Uncomment for additional repositories:
+      # - codeready-builder-for-rhel-8-x86_64-rpms
+      # - ansible-2.9-for-rhel-8-x86_64-rpms
+      # - satellite-6-for-rhel-8-x86_64-rpms
+    
+    # Essential packages for airgapped environment
+    packages:
+      # System utilities
+      - vim
+      - nano
+      - wget
+      - curl
+      - rsync
+      - screen
+      - tmux
+      
+      # Network tools
+      - net-tools
+      - bind-utils
+      - traceroute
+      - tcpdump
+      - nmap
+      - wireshark
+      
+      # Container tools
+      - podman
+      - buildah
+      - skopeo
+      - crun
+      
+      # Development tools
+      - git
+      - gcc
+      - make
+      - python3
+      - python3-pip
+      
+      # Configuration management
+      - ansible
+      
+      # Monitoring
+      - sysstat
+      - htop
+      - iotop
+      
+      # Security
+      - aide
+      - openscap
+      - openscap-scanner
+      
+    # Download all dependencies (important for airgapped!)
+    download_dependencies: true
+    
+  "9":
+    enabled: true
+    # For RHEL 9
+    repos:
+      - rhel-9-for-x86_64-baseos-rpms
+      - rhel-9-for-x86_64-appstream-rpms
+      - rhel-9-for-x86_64-supplementary-rpms
+      # Uncomment for additional repositories:
+      # - codeready-builder-for-rhel-9-x86_64-rpms
+      # - ansible-automation-platform-2.4-for-rhel-9-x86_64-rpms
+    
+    packages:
+      # System utilities
+      - vim
+      - nano
+      - wget
+      - curl
+      - rsync
+      - screen
+      - tmux
+      
+      # Network tools
+      - net-tools
+      - bind-utils
+      - traceroute
+      - tcpdump
+      
+      # Container tools
+      - podman
+      - buildah
+      - skopeo
+      
+      # Development tools
+      - git
+      - gcc
+      - make
+      - python3
+      - python3-pip
+      
+      # Configuration management
+      - ansible-core
+      
+      # Monitoring
+      - sysstat
+      
+    download_dependencies: true
+    
+  "10":
+    # RHEL 10 is not yet GA - enable when available
+    enabled: false
+    repos:
+      - rhel-10-for-x86_64-baseos-rpms
+      - rhel-10-for-x86_64-appstream-rpms
+    packages:
+      - vim
+      - git
+      - wget
+      - curl
+      - podman
+    download_dependencies: true
+
+# Mirror settings for airgapped environment
+mirror_settings:
+  # Download repository metadata
+  download_metadata: true
+  
+  # Download source RPMs (usually not needed for airgapped)
+  download_source: false
+  
+  # Download debug packages (large, usually not needed)
+  download_debuginfo: false
+  
+  # Only download newest package versions
+  newest_only: true
+  
+# Network proxy settings (if syncing through a proxy)
+proxy_settings:
+  enabled: false
+  http_proxy: "http://proxy.example.com:3128"
+  https_proxy: "http://proxy.example.com:3128"
+  no_proxy: "localhost,127.0.0.1,.example.com"
+
+# Additional airgapped-specific settings
+airgapped_config:
+  # Create ISO images of repositories (for physical transfer)
+  create_iso: false
+  iso_output_path: /var/local-repos/isos
+  
+  # GPG key management
+  import_gpg_keys: true
+  gpg_keys_path: /etc/pki/rpm-gpg
+  
+  # Repository verification
+  verify_packages: true
+  
+  # Bandwidth optimization
+  parallel_downloads: 4
+  bandwidth_limit: "10m"  # 10 MB/s limit
+
+# Custom repository definitions (if using Satellite)
+# Uncomment and configure if using Red Hat Satellite
+# custom_repos:
+#   rhel8_satellite:
+#     name: "RHEL 8 via Satellite"
+#     baseurl: "https://satellite.example.com/pulp/repos/Production/RHEL8/Library/content/dist/rhel8/8/x86_64/baseos/os"
+#     enabled: true
+#     gpgcheck: true

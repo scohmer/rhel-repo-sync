@@ -1,0 +1,121 @@
+---
+- name: Build and Initialize RHEL Repository Sync Containers
+  hosts: localhost
+  become: true
+  vars_files:
+    - vars/repo_config.yml
+  
+  tasks:
+    - name: Ensure required directories exist
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - "{{ base_repo_path }}/rhel8"
+        - "{{ base_repo_path }}/rhel9"
+        - "{{ base_repo_path }}/rhel10"
+        - "{{ base_repo_path }}/dockerfiles"
+
+    - name: Copy Dockerfiles to target directory
+      copy:
+        src: "dockerfiles/Dockerfile.rhel{{ item }}"
+        dest: "{{ base_repo_path }}/dockerfiles/Dockerfile.rhel{{ item }}"
+        mode: '0644'
+      loop:
+        - 8
+        - 9
+        - 10
+
+    - name: Build UBI containers for each RHEL version
+      containers.podman.podman_image:
+        name: "rhel{{ item }}-repo-sync"
+        tag: latest
+        path: "{{ base_repo_path }}/dockerfiles"
+        build:
+          file: "{{ base_repo_path }}/dockerfiles/Dockerfile.rhel{{ item }}"
+          extra_args: "--no-cache"
+      loop:
+        - 8
+        - 9
+        - 10
+      when: rhel_versions[item|string].enabled | default(false)
+
+    - name: Create repository sync containers
+      containers.podman.podman_container:
+        name: "rhel{{ item }}-repo-sync"
+        image: "rhel{{ item }}-repo-sync:latest"
+        state: started
+        detach: true
+        recreate: true
+        volume:
+          - "{{ base_repo_path }}/rhel{{ item }}:/var/local-repo:Z"
+        env:
+          REPOS: "{{ rhel_versions[item|string].repos | join(',') }}"
+          PACKAGES: "{{ rhel_versions[item|string].packages | join(',') }}"
+        command: sleep infinity
+      loop:
+        - 8
+        - 9
+        - 10
+      when: rhel_versions[item|string].enabled | default(false)
+
+    - name: Wait for containers to be ready
+      pause:
+        seconds: 5
+
+    - name: Execute repository sync in containers
+      containers.podman.podman_container_exec:
+        name: "rhel{{ item }}-repo-sync"
+        command: /usr/local/bin/sync-repos.sh
+      loop:
+        - 8
+        - 9
+        - 10
+      when: rhel_versions[item|string].enabled | default(false)
+      register: sync_results
+
+    - name: Display sync results
+      debug:
+        msg: "RHEL {{ item }} sync completed: {{ sync_results.results[idx].stdout }}"
+      loop:
+        - 8
+        - 9
+        - 10
+      loop_control:
+        index_var: idx
+      when: 
+        - rhel_versions[item|string].enabled | default(false)
+        - sync_results.results[idx].stdout is defined
+
+    - name: Create repository metadata
+      containers.podman.podman_container_exec:
+        name: "rhel{{ item }}-repo-sync"
+        command: createrepo_c /var/local-repo
+      loop:
+        - 8
+        - 9
+        - 10
+      when: rhel_versions[item|string].enabled | default(false)
+
+    - name: Generate repository configuration files
+      template:
+        src: templates/local-repo.repo.j2
+        dest: "{{ base_repo_path }}/rhel{{ item }}/local-rhel{{ item }}.repo"
+        mode: '0644'
+      loop:
+        - 8
+        - 9
+        - 10
+      when: rhel_versions[item|string].enabled | default(false)
+
+    - name: Display completion message
+      debug:
+        msg: |
+          Repository sync completed!
+          Repositories are available at:
+          {% for version in ['8', '9', '10'] %}
+          {% if rhel_versions[version].enabled | default(false) %}
+          - RHEL {{ version }}: {{ base_repo_path }}/rhel{{ version }}
+          {% endif %}
+          {% endfor %}

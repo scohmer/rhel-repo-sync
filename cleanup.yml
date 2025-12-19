@@ -1,0 +1,77 @@
+---
+- name: Cleanup RHEL Repository Sync Environment
+  hosts: localhost
+  become: true
+  vars_files:
+    - vars/repo_config.yml
+
+  tasks:
+    - name: Stop running containers
+      containers.podman.podman_container:
+        name: "rhel{{ item }}-repo-sync"
+        state: stopped
+      loop:
+        - 8
+        - 9
+        - 10
+      ignore_errors: true
+
+    - name: Remove containers
+      containers.podman.podman_container:
+        name: "rhel{{ item }}-repo-sync"
+        state: absent
+      loop:
+        - 8
+        - 9
+        - 10
+      ignore_errors: true
+
+    - name: Remove container images (optional)
+      containers.podman.podman_image:
+        name: "rhel{{ item }}-repo-sync"
+        tag: latest
+        state: absent
+      loop:
+        - 8
+        - 9
+        - 10
+      when: cleanup_images | default(false)
+      ignore_errors: true
+
+    - name: Remove repository data (optional)
+      file:
+        path: "{{ base_repo_path }}/rhel{{ item }}"
+        state: absent
+      loop:
+        - 8
+        - 9
+        - 10
+      when: cleanup_data | default(false)
+
+    - name: Display cleanup summary
+      debug:
+        msg: |
+          Cleanup completed!
+          - Containers stopped and removed
+          {% if cleanup_images | default(false) %}
+          - Container images removed
+          {% endif %}
+          {% if cleanup_data | default(false) %}
+          - Repository data removed
+          {% endif %}
+
+- name: Optional - Prune unused resources
+  hosts: localhost
+  become: true
+  tasks:
+    - name: Prune unused Podman resources
+      command: podman system prune -f
+      when: prune_system | default(false)
+      register: prune_result
+
+    - name: Display prune results
+      debug:
+        msg: "{{ prune_result.stdout }}"
+      when: 
+        - prune_system | default(false)
+        - prune_result is defined

@@ -1,0 +1,30 @@
+FROM registry.access.redhat.com/ubi10/ubi:latest
+
+LABEL maintainer="RHEL Repository Sync"
+LABEL description="RHEL 10 Repository Synchronization Container"
+LABEL version="10"
+
+# Install required packages
+RUN dnf install -y \
+    dnf-plugins-core \
+    createrepo_c \
+    yum-utils \
+    wget \
+    curl \
+    rsync \
+    python3 \
+    subscription-manager \
+    && dnf clean all
+
+# Create repository directory
+RUN mkdir -p /var/local-repo
+
+# Copy repository sync script
+COPY scripts/sync-repos.sh /usr/local/bin/sync-repos.sh
+RUN chmod +x /usr/local/bin/sync-repos.sh
+
+# Set working directory
+WORKDIR /var/local-repo
+
+# Default command
+CMD ["/bin/bash"]
